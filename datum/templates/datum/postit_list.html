@@ -1,18 +1,13 @@
-<html>
-    <head>
-        <title>Masterplan 3</title>
-    </head>
-    <body>
-        <div>
-            <h1><a href="/">Inbox</a></h1>
-        </div>
+{% extends 'datum/base.html' %}
 
-        {% for postit in postits %}
-            <div>
+{% block content %}
+    {% for postit in postits %}
+        <div class="postit">
+            <div class="date">
                 <p>created: {{ postit.created_date }}</p>
-                <h2><a href="">{{ postit.title }}</a></h2>
-                <p>{{ postit.text|linebreaksbr }}</p>
             </div>
-        {% endfor %}
-    </body>
-</html>
+            <h2><a href="{% url 'postit_detail' pk=postit.pk %}">{{ postit.title }}</a></h2>
+            <p>{{ postit.text|linebreaksbr }}</p>
+        </div>
+    {% endfor %}
+{% endblock %}

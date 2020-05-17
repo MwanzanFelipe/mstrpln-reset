@@ -1,0 +1,13 @@
+{% extends 'datum/base.html' %}
+
+{% block content %}
+    <div class="postit">
+        {% if postit.created_date %}
+            <div class="date">
+                {{ postit.created_date }}
+            </div>
+        {% endif %}
+        <h2>{{ postit.title }}</h2>
+        <p>{{ postit.text|linebreaksbr }}</p>
+    </div>
+{% endblock %}
