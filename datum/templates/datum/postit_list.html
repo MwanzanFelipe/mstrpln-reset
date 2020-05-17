@@ -1,0 +1,18 @@
+<html>
+    <head>
+        <title>Masterplan 3</title>
+    </head>
+    <body>
+        <div>
+            <h1><a href="/">Inbox</a></h1>
+        </div>
+
+        {% for postit in postits %}
+            <div>
+                <p>created: {{ postit.created_date }}</p>
+                <h2><a href="">{{ postit.title }}</a></h2>
+                <p>{{ postit.text|linebreaksbr }}</p>
+            </div>
+        {% endfor %}
+    </body>
+</html>

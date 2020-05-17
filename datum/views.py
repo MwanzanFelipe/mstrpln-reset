@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from django.utils import timezone
+from .models import PostIt
 
-def post_list(request):
-    return render(request, 'datum/post_list.html', {})
+def postit_list(request):
+    postits = PostIt.objects.order_by('created_date')
+    return render(request, 'datum/postit_list.html', {'postits': postits})
