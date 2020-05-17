@@ -22,7 +22,7 @@
     float: right;
 }
 
-.post-form textarea, .post-form input {
+.postit-form textarea, .postit-form input {
     width: 100%;
 }
 
@@ -33,10 +33,10 @@
     margin-right: 20px;
 }
 
-.post {
+.postit {
     margin-bottom: 70px;
 }
 
-.post h2 a, .post h2 a:visited {
+.postit h2 a, .postit h2 a:visited {
     color: #000000;
 }
