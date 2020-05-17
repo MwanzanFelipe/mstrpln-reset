@@ -4,11 +4,14 @@ from django.utils import timezone
 
 
 class PostIt(models.Model):
-    title = models.CharField("PostIt Title", max_length=200)
-    text = models.TextField("Text", blank=True)
-    created_date = models.DateTimeField("Creation DateTime", default=timezone.now)
+	title = models.CharField("PostIt Title", max_length=200)
+	text = models.TextField("Notes", blank=True)
+	creation_date = models.DateTimeField("Creation DateTime", default=timezone.now)
 
-    active = models.BooleanField(default=False, verbose_name="Active Status")
+	active = models.BooleanField(default=True, verbose_name="Active Status")
 
-    def __str__(self):
-        return self.title
+	def __str__(self):
+		return self.title
+
+	class Meta:
+		verbose_name = "Post-it Note"

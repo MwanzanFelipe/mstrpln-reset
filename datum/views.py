@@ -4,7 +4,7 @@ from .models import PostIt
 from .forms import PostItForm
 
 def postit_list(request):
-    postits = PostIt.objects.order_by('created_date')
+    postits = PostIt.objects.order_by('creation_date')
     return render(request, 'datum/postit_list.html', {'postits': postits})
 
 def postit_detail(request, pk):
@@ -16,7 +16,7 @@ def postit_new(request):
         form = PostItForm(request.POST)
         if form.is_valid():
             postit = form.save(commit=False)
-            postit.created_date = timezone.now()
+            postit.creation_date = timezone.now()
             postit.save()
             return redirect('postit_detail', pk=postit.pk)
     else:
@@ -29,7 +29,6 @@ def postit_edit(request, pk):
         form = PostItForm(request.POST, instance=postit)
         if form.is_valid():
             postit = form.save(commit=False)
-            postit.created_date = timezone.now()
             postit.save()
             return redirect('postit_detail', pk=postit.pk)
     else:
