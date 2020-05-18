@@ -1,0 +1,16 @@
+{% extends 'datum/base.html' %}
+
+{% block content %}
+    <div class="action">
+        {% if action.created_date %}
+            <div class="date">
+                {{ action.creation_date }}
+            </div>
+        {% endif %}
+        {% if user.is_authenticated %}
+        	<a class="btn btn-default" href="{% url 'action_edit' pk=action.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+        {% endif %}
+        <h2>{{ action.title }}</h2>
+        <p>{{ action.text|linebreaksbr }}</p>
+    </div>
+{% endblock %}

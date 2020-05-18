@@ -1,0 +1,14 @@
+{% extends 'datum/base.html' %}
+
+{% block content %}
+    <h1><a href="">Action List</a></h1>
+    {% for action in actions %}
+        <div class="action">
+            <div class="date">
+                <p>created: {{ action.creation_date }}</p>
+            </div>
+            <h2><a href="{% url 'action_detail' pk=action.pk %}">{{ action.title }}</a></h2>
+            <p>{{ action.text|linebreaksbr }}</p>
+        </div>
+    {% endfor %}
+{% endblock %}
