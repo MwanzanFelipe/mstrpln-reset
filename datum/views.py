@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.views import generic
 from .models import *
 from .forms import *
 
@@ -14,66 +15,96 @@ def index(request): #the index view
         "top_priorities": top_priorities,
         })
 
-def postit_list(request):
-    postits = PostIt.objects.order_by('creation_date')
-    return render(request, 'datum/postit_list.html', {'postits': postits})
+class PostItList(generic.ListView):
+    model = PostIt
+    queryset = PostIt.objects.order_by('creation_date')
+    context_object_name = 'postits'
+    paginate_by = 5
 
-def postit_detail(request, pk):
-    postit = get_object_or_404(PostIt, pk=pk)
-    return render(request, 'datum/postit_detail.html', {'postit': postit})
+class PostItDetailView(generic.DetailView):
+    model = PostIt
 
-def postit_new(request):
-    if request.method == "POST":
-        form = PostItForm(request.POST)
-        if form.is_valid():
-            postit = form.save(commit=False)
-            postit.creation_date = timezone.now()
-            postit.save()
-            return redirect('postit_detail', pk=postit.pk)
-    else:
-        form = PostItForm()
-    return render(request, 'datum/postit_edit.html', {'form': form})
+class PostItNew(generic.edit.CreateView):
+    model = PostIt
+    fields = [
+        "title",
+        "text"
+    ] 
 
-def postit_edit(request, pk):
-    postit = get_object_or_404(PostIt, pk=pk)
-    if request.method == "POST":
-        form = PostItForm(request.POST, instance=postit)
-        if form.is_valid():
-            postit = form.save(commit=False)
-            postit.save()
-            return redirect('postit_detail', pk=postit.pk)
-    else:
-        form = PostItForm(instance=postit)
-    return render(request, 'datum/postit_edit.html', {'form': form})
+class PostItUpdate(generic.edit.UpdateView):
+    model = PostIt
+    fields = [
+        "title",
+        "text",
+        "active"
+    ] 
 
-def action_list(request):
-    actions = Action.objects.order_by('creation_date')
-    return render(request, 'datum/action_list.html', {'actions': actions})
+class ActionList(generic.ListView):
+    model = Action
+    queryset = Action.objects.order_by('creation_date')
+    context_object_name = 'actions'
+    paginate_by = 5
 
-def action_detail(request, pk):
-    action = get_object_or_404(Action, pk=pk)
-    return render(request, 'datum/action_detail.html', {'action': action})
+class ActionDetailView(generic.DetailView):
+    model = Action
 
-def action_new(request):
-    if request.method == "POST":
-        form = ActionForm(request.POST)
-        if form.is_valid():
-            action = form.save(commit=False)
-            action.creation_date = timezone.now()
-            action.save()
-            return redirect('action_detail', pk=action.pk)
-    else:
-        form = ActionForm()
-    return render(request, 'datum/action_edit.html', {'form': form})
+class ActionNew(generic.edit.CreateView):
+    model = Action
+    fields = [
+        "title",
+        "text",
+        "effort",
+        "importance",
+        "enjoyment",
+        "relationship",
+        "starred",
+        "tags",
+        "due_date"
+    ]
 
-def action_edit(request, pk):
-    action = get_object_or_404(Action, pk=pk)
-    if request.method == "POST":
-        form = ActionForm(request.POST, instance=action)
-        if form.is_valid():
-            action = form.save(commit=False)
-            action.save()
-            return redirect('action_detail', pk=action.pk)
-    else:
-        form = ActionForm(instance=action)
-    return render(request, 'datum/action_edit.html', {'form': form})
+class ActionUpdate(generic.edit.UpdateView):
+    model = Action
+    fields = [
+        "title",
+        "text",
+        "effort",
+        "importance",
+        "enjoyment",
+        "relationship",
+        "starred",
+        "tags",
+        "due_date",
+        "active",
+        "complete",
+        "snooze_date",
+        "recurrence_date",
+        "recreation_date"
+    ]
+
+
+class InformationList(generic.ListView):
+    model = Information
+    queryset = Information.objects.order_by('creation_date')
+    context_object_name = 'information'
+    paginate_by = 5
+
+class InformationDetailView(generic.DetailView):
+    model = Information
+
+class InformationNew(generic.edit.CreateView):
+    model = Information
+    fields = [
+        "title",
+        "text",
+        "starred",
+        "tags"
+    ]
+
+class InformationUpdate(generic.edit.UpdateView):
+    model = Information
+    fields = [
+        "title",
+        "text",
+        "starred",
+        "tags"
+    ]

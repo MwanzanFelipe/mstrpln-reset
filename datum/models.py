@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.urls import reverse
 import datetime 
 
 LEVELS = (
@@ -28,6 +29,9 @@ class PostIt(BaseDatum):
 
 	class Meta:
 		verbose_name = "Post-it Note"
+
+	def get_absolute_url(self):
+		return reverse('postit_detail', args=[self.id])
 
 class Action(BaseDatum): 
 
@@ -57,6 +61,9 @@ class Action(BaseDatum):
 		ordering = ['-priority', 'title'] 
 		verbose_name = "Next Action"
 
+	def get_absolute_url(self):
+		return reverse('action_detail', args=[self.id])
+
 class Information(BaseDatum): 
 
 	starred = models.BooleanField("Star Status", default=False)
@@ -70,3 +77,6 @@ class Information(BaseDatum):
 	class Meta: 
 		ordering = ['title'] 
 		verbose_name = "Information Item"
+
+	def get_absolute_url(self):
+		return reverse('information_detail', args=[self.id])

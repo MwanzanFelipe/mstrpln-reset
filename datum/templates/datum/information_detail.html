@@ -1,0 +1,17 @@
+{% extends 'datum/base.html' %}
+
+{% block content %}
+    <div class="information">
+        {% if information.created_date %}
+            <div class="date">
+                {{ information.creation_date }}
+            </div>
+        {% endif %}
+        {% if user.is_authenticated %}
+        	<a class="btn btn-default" href="{% url 'information_update' pk=information.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+        {% endif %}
+        <h2>{{ information.title }}</h2>
+        <p>{{ information.text|linebreaksbr }}</p>
+        <p>{{ information.tags }}</p>
+    </div>
+{% endblock %}

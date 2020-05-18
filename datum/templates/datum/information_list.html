@@ -2,14 +2,15 @@
 
 {% block content %}
 
-	<h1><a href="/">Inbox</a></h1>
-    {% for postit in postits %}
-        <div class="postit">
+	<h1><a href="/">Information</a></h1>
+    {% for info in information %}
+        <div class="info">
             <div class="date">
-                <p>created: {{ postit.creation_date }}</p>
+                <p>created: {{ info.creation_date }}</p>
             </div>
-            <h2><a href="{% url 'postit_detail' pk=postit.pk %}">{{ postit.title }}</a></h2>
-            <p>{{ postit.text|linebreaksbr }}</p>
+            <h2><a href="{% url 'information_detail' pk=info.pk %}">{{ info.title }}</a></h2>
+            <p>{{ info.text|linebreaksbr }}</p>
+            <p>{{ info.tags }}</p>
         </div>
     {% endfor %}
 
