@@ -1,0 +1,14 @@
+{% extends 'datum/base.html' %}
+
+{% block content %}
+    
+    <h2><a href="{% url 'postit_list' %}">Inbox</a></h2>
+    Inbox Count: {{ inbox_count }}
+    <h2><a href="{% url 'action_list' %}">Next Actions</a></h2>
+    Starred Actions Count: {{ starred_actions_count}}
+    {% for action in top_priorities %}
+        <div>
+            <a href="{% url 'action_detail' pk=action.pk %}">{{ action.title }}</a>
+        </div>
+    {% endfor %}
+{% endblock %}

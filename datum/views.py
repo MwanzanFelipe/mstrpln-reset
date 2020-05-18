@@ -3,6 +3,17 @@ from django.utils import timezone
 from .models import *
 from .forms import *
 
+def index(request): #the index view
+    inbox_count = PostIt.objects.count()
+    starred_actions_count = Action.objects.filter(starred=True).count()
+    top_priorities = Action.objects.order_by('priority')[:5]
+
+    return render(request, "datum/index.html", {
+        "inbox_count": inbox_count,
+        "starred_actions_count": starred_actions_count,
+        "top_priorities": top_priorities,
+        })
+
 def postit_list(request):
     postits = PostIt.objects.order_by('creation_date')
     return render(request, 'datum/postit_list.html', {'postits': postits})
