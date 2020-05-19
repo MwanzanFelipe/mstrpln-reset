@@ -5,9 +5,9 @@ from .models import *
 from .forms import *
 
 def index(request): #the index view
-    inbox_count = PostIt.objects.count()
+    inbox_count = PostIt.objects.filter(active=True).count()
     starred_actions_count = Action.objects.filter(starred=True).count()
-    top_priorities = Action.objects.order_by('priority')[:5]
+    top_priorities = Action.objects.filter(active=True).order_by('priority')[:5]
 
     return render(request, "datum/index.html", {
         "inbox_count": inbox_count,
@@ -17,7 +17,7 @@ def index(request): #the index view
 
 class PostItList(generic.ListView):
     model = PostIt
-    queryset = PostIt.objects.order_by('creation_date')
+    queryset = PostIt.objects.filter(active=True).order_by('creation_date')
     context_object_name = 'postits'
     paginate_by = 5
 
@@ -41,7 +41,7 @@ class PostItUpdate(generic.edit.UpdateView):
 
 class ActionList(generic.ListView):
     model = Action
-    queryset = Action.objects.order_by('creation_date')
+    queryset = Action.objects.filter(active=True).order_by('creation_date')
     context_object_name = 'actions'
     paginate_by = 5
 

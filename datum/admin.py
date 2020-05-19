@@ -6,9 +6,10 @@ admin.site.register(PostIt)
 class ActionAdmin(admin.ModelAdmin):
 	fieldsets = [
 		(None,						{'fields': ['title', 'complete', 'starred', 'active', 'text']}),
-		('Characteristics',			{'fields': ['importance', 'effort', 'enjoyment', 'relationship', 'priority','tags'], 'classes': ['collapse']}),
+		('Characteristics',			{'fields': ['importance', 'effort', 'enjoyment', 'relationship', 'tags', 'priority'], 'classes': ['collapse']}),
 		('Date Information',		{'fields': ['creation_date','recreation_date','last_modified','due_date', 'snooze_date','recurrence_date'], 'classes': ['collapse']}),
 	]
+	readonly_fields = ["priority","creation_date"]
 
 	list_display = ('title','complete','active','importance','effort','enjoyment','relationship','priority',)
 	search_fields = ('title',)

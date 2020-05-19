@@ -2,7 +2,8 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
-import datetime 
+from datetime import date
+from decimal import Decimal
 
 LEVELS = (
 	(1, '1 - Hardly'),
@@ -53,6 +54,18 @@ class Action(BaseDatum):
 	snooze_date = models.DateField("Snooze Date", blank=True, null=True)
 	recurrence_date = models.DateField("Recurrence Date", blank=True, null=True)
 	recreation_date = models.DateTimeField("Recreation DateTime", default=timezone.now)
+
+	def calc_priority(self):
+		days_since_creation = timezone.now().date() - self.recreation_date.date()
+		days_to_expiration = timezone.now().date() - self.due_date.date()
+		importance = self.importance
+
+		self.priority = Decimal(days_since_creation, 2)
+
+
+	def save(self, **kw):
+		self.last_modified = timezone.now()
+		super(Action, self).save(**kw)
 
 	def __str__(self): 
 		return self.title 
