@@ -7,7 +7,7 @@
     <h2><a href="{% url 'action_list' %}">Next Actions</a></h2>
     Starred Actions Count: {{ starred_actions_count}}
     <p>Top 5 prioritized actions:</p>
-    {% for action in top_priorities %}
+    {% for action in top_prioritized_actions %}
         <div>
             <a href="{% url 'action_detail' pk=action.pk %}">{{ action.title }}</a>
         </div>

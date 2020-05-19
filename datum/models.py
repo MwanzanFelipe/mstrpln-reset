@@ -4,7 +4,9 @@ from django.utils import timezone
 from django.urls import reverse
 from datetime import date
 from decimal import Decimal
+import random
 
+# Used for Action characteristics
 LEVELS = (
 	(1, '1 - Hardly'),
 	(2, '2'),
@@ -13,14 +15,16 @@ LEVELS = (
 	(5, '5 - Very'),
 )
 
+# Abstract base class so that every model gets a title, text, and creation_date
 class BaseDatum(models.Model):
 	title = models.CharField("Title", max_length=200)
 	text = models.TextField("Notes", blank=True)
-	creation_date = models.DateTimeField("Creation DateTime", default=timezone.now)
+	creation_date = models.DateTimeField("Creation DateTime", auto_now_add=True)
 
 	class Meta:
 		abstract = True
 
+# Uncharacterized items
 class PostIt(BaseDatum):
 
 	active = models.BooleanField(default=True, verbose_name="Active Status")
@@ -34,37 +38,49 @@ class PostIt(BaseDatum):
 	def get_absolute_url(self):
 		return reverse('postit_detail', args=[self.id])
 
+# Action items
 class Action(BaseDatum): 
 
+	# Action characteristics
 	effort = models.IntegerField("Effort Level", choices = LEVELS, default = 3)
 	importance = models.IntegerField("Importance", choices = LEVELS, default = 3)
 	enjoyment = models.IntegerField("Enjoyment", choices = LEVELS, default = 3)
 	relationship = models.IntegerField("Relationship", choices = LEVELS, default = 3)
 
+	# Auto-calculated priority based action characteristics and other metadata
 	priority = models.DecimalField("Priority Level", max_digits=6, decimal_places=2, blank=True, null=True)
 
+	# Boolean statuses
 	active = models.BooleanField(default=True, verbose_name="Active Status")
 	complete = models.BooleanField("Completion Status", default=False)
 	starred = models.BooleanField("Star Status", default=False)
 
-	last_modified = models.DateTimeField("Last Modified", default=timezone.now)
+	# Action categories
 	tags = models.CharField("Tags", max_length=200, blank=True)
 
+	# User-generated date characteristics
 	due_date = models.DateField("Due Date", blank=True, null=True)
 	snooze_date = models.DateField("Snooze Date", blank=True, null=True)
 	recurrence_date = models.DateField("Recurrence Date", blank=True, null=True)
-	recreation_date = models.DateTimeField("Recreation DateTime", default=timezone.now)
 
-	def calc_priority(self):
+	# Auto-generated date characteristics
+	recreation_date = models.DateTimeField("Recreation DateTime", auto_now_add=True)
+	last_modified = models.DateTimeField("Last Modified", auto_now=True)
+	latest_priority_calc_date = models.DateTimeField("DateTime of latest Priority Recalcuation", auto_now=True)
+
+	# Function to calculate priority based action characteristics and other metadata
+	def calced_priority(self):
+		# TODO: Revise calculation based on today's date, (re)creation date, due date, importance, and tag priority
 		days_since_creation = timezone.now().date() - self.recreation_date.date()
-		days_to_expiration = timezone.now().date() - self.due_date.date()
+		# days_to_expiration = timezone.now().date() - self.due_date.date()
 		importance = self.importance
-
-		self.priority = Decimal(days_since_creation, 2)
-
+		return Decimal(random.randint(1,1000))
 
 	def save(self, **kw):
-		self.last_modified = timezone.now()
+		
+		# Recalculate priority when Action data changes
+		self.priority = self.calced_priority()
+
 		super(Action, self).save(**kw)
 
 	def __str__(self): 
@@ -79,10 +95,14 @@ class Action(BaseDatum):
 
 class Information(BaseDatum): 
 
+	# Boolean statuses
 	starred = models.BooleanField("Star Status", default=False)
 
-	last_modified = models.DateTimeField("Last Modified", default=timezone.now)
+	# Information categories
 	tags = models.CharField("Tags", max_length=200, blank=True)
+
+	# Auto-generated date characteristics
+	last_modified = models.DateTimeField("Last Modified", auto_now=True)
 
 	def __str__(self): 
 		return self.title 
