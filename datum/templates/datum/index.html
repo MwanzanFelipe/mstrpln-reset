@@ -12,6 +12,8 @@
             <a href="{% url 'action_detail' pk=action.pk %}">{{ action.title }}</a>
         </div>
     {% endfor %}
+    <h3><a href="{% url 'log_list' %}">Log Book</a></h3>
     <h2><a href="{% url 'information_list' %}">Information</a></h2>
+
 
 {% endblock %}

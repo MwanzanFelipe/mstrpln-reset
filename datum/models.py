@@ -64,14 +64,23 @@ class Action(BaseDatum):
 	recurrence_date = models.DateField("Recurrence Date", blank=True, null=True)
 
 	# Auto-generated date characteristics
-	recreation_date = models.DateTimeField("Recreation DateTime", auto_now_add=True)
-	last_modified = models.DateTimeField("Last Modified", auto_now=True)
-	latest_priority_calc_date = models.DateTimeField("DateTime of latest Priority Recalcuation", auto_now=True)
+	recreation_date = models.DateTimeField("Recreation DateTime", auto_now_add=True, editable=False)
+	last_modified = models.DateTimeField("Last Modified", auto_now=True, editable=False)
+	latest_priority_calc_date = models.DateTimeField("DateTime of latest Priority Recalcuation", auto_now=True, editable=False)
+
+	# Cache initial version of record to determine before/after differences
+	def __init__(self, *args, **kw):
+
+		super(Action, self).__init__(*args, **kw)
+		self.__trigger_fields = ['active','complete','due_date','snooze_date','recurrence_date']
+
+		for field in self.__trigger_fields:
+			setattr(self, '__original_%s' % field, getattr(self, field))
 
 	# Function to calculate priority based action characteristics and other metadata
 	def calced_priority(self):
 		# TODO: Revise calculation based on today's date, (re)creation date, due date, importance, and tag priority
-		days_since_creation = timezone.now().date() - self.recreation_date.date()
+		# days_since_creation = timezone.now().date() - self.recreation_date.date()
 		# days_to_expiration = timezone.now().date() - self.due_date.date()
 		importance = self.importance
 		return Decimal(random.randint(1,1000))
@@ -82,6 +91,25 @@ class Action(BaseDatum):
 		self.priority = self.calced_priority()
 
 		super(Action, self).save(**kw)
+
+
+		if self.complete:
+			# If going from incomplete to complete
+			if getattr(self, '__original_complete') != getattr(self,'complete'):
+				# Add a log entry when Actions are marked complete
+				# This works but would perhaps be better if functionality is "owned" by Log
+				# Could use post_save.connect to trigger Log. Especially better if post-save logging needed for multiple models
+				# Given that Log is only used for Action, leaving this for now unless Action model gets too busy
+				Log.objects.create(
+					action = self,
+					title = self.title,
+					completion_date = date.today(),
+					effort = self.effort,
+					importance = self.importance,
+					enjoyment = self.enjoyment,
+					relationship = self.relationship,
+					tags = self.tags
+				)
 
 	def __str__(self): 
 		return self.title 
@@ -102,7 +130,7 @@ class Information(BaseDatum):
 	tags = models.CharField("Tags", max_length=200, blank=True)
 
 	# Auto-generated date characteristics
-	last_modified = models.DateTimeField("Last Modified", auto_now=True)
+	last_modified = models.DateTimeField("Last Modified", auto_now=True, editable=False)
 
 	def __str__(self): 
 		return self.title 
@@ -113,3 +141,26 @@ class Information(BaseDatum):
 
 	def get_absolute_url(self):
 		return reverse('information_detail', args=[self.id])
+
+# Log of Action completions
+class Log(models.Model):
+	title = models.CharField("Title", max_length=200, editable=False)
+	completion_date = models.DateTimeField("Completion DateTime", auto_now_add=True, editable=False)
+
+	action = models.ForeignKey(Action, null=True, on_delete=models.SET_NULL)
+
+	# Action characteristics
+	effort = models.IntegerField("Effort Level", choices = LEVELS, editable=False)
+	importance = models.IntegerField("Importance", choices = LEVELS, editable=False)
+	enjoyment = models.IntegerField("Enjoyment", choices = LEVELS, editable=False)
+	relationship = models.IntegerField("Relationship", choices = LEVELS, editable=False)
+
+	# Action categories
+	tags = models.CharField("Tags", max_length=200, blank=True, editable=False)
+
+	def __str__(self): 
+		return "%s - %s" % (self.title, self.completion_date)
+
+	class Meta: 
+		ordering = ['-completion_date'] 
+		verbose_name = "Completion Log"
