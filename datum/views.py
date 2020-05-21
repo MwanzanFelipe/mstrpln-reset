@@ -115,13 +115,11 @@ class InformationUpdate(generic.edit.UpdateView):
         "tags"
     ]
 
-
 class LogList(generic.ListView):
     model = Log
     queryset = Log.objects.order_by('-completion_date')
     context_object_name = 'logs'
     paginate_by = 10
-
 
 # Recalculate action priorities
 def recalculate_action_priorities(actions):

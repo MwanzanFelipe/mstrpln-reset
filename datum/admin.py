@@ -1,18 +1,31 @@
 from django.contrib import admin
+from django.contrib.contenttypes.admin import GenericTabularInline
 from .models import *
 
 admin.site.register(PostIt)
 
+# Inline definition for custom through model
+class TaggedItemInline(admin.StackedInline):
+    model = TaggedWhatever
+
+class TagAdmin(admin.ModelAdmin):
+	inlines = [
+		TaggedItemInline,
+	]
+	
+	list_display = ('name','starred')
+admin.site.register(Tag,TagAdmin)
 
 class LogInline(admin.StackedInline):
     model = Log
     can_delete = False
+    exclude = ['tags']
     max_num = 0
 
 class ActionAdmin(admin.ModelAdmin):
 	fieldsets = [
 		(None,						{'fields': ['title', 'complete', 'active', 'starred', 'text']}),
-		('Characteristics',			{'fields': ['importance', 'effort', 'enjoyment', 'relationship', 'tags', 'priority'], 'classes': ['collapse']}),
+		('Characteristics',			{'fields': ['importance', 'effort', 'enjoyment', 'relationship', 'priority','tags'], 'classes': ['collapse']}),
 		('User-generated date characteristics',	{'fields': ['due_date','snooze_date','recurrence_date'], 'classes': ['collapse']}),
 		('Auto-generated date characteristics',	{'fields': ['creation_date','recreation_date','last_modified','latest_priority_calc_date'], 'classes': ['collapse']}),
 	]

@@ -1,3 +1,4 @@
 Django~=3.0.6
 wheel
-django-crontab
+django-crontab==0.7.1
+django-taggit==1.2.0

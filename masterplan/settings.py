@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'datum.apps.DatumConfig',
     'django_crontab',
+    'taggit',
 ]
 
 MIDDLEWARE = [
