@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.views import generic
 from .models import *
@@ -14,6 +14,9 @@ def index(request): #the index view
     # Active Starred Count
     starred_actions_count = Action.objects.filter(active=True, starred=True).count()
 
+    # Starred Tags
+    starred_tags = CustomTag.objects.filter(starred=True).order_by('name')
+
     # Top 5 Actions
     top_prioritized_actions = Action.objects.filter(active=True).order_by('priority')[:5]
 
@@ -21,6 +24,7 @@ def index(request): #the index view
         "inbox_count": inbox_count,
         "starred_actions_count": starred_actions_count,
         "top_prioritized_actions": top_prioritized_actions,
+        "starred_tags": starred_tags,
         })
 
 class PostItList(generic.ListView):
@@ -130,3 +134,21 @@ def recalculate_action_priorities(actions):
 
         # Update instead of save so that last_modified auto_now is not triggered
         Action.objects.filter(id=action.id).update(priority=priority,latest_priority_calc_date=latest_priority_calc_date)
+
+# List of all items by tags
+class FullTagListView(generic.ListView):
+    template_name = 'datum/tagitem_list.html'
+    context_object_name = "actions"
+    
+    # Default queryset returned is Action
+    def get_queryset(self):
+        return Action.objects.filter(tags__slug=self.kwargs.get("slug")).all()
+
+    def get_context_data(self, **kwargs):
+        context = super(FullTagListView, self).get_context_data(**kwargs)
+
+        # Return the Tag and Information Items along with Action
+        context["tag"] = get_object_or_404(CustomTag, slug = self.kwargs.get("slug"))
+        context["information"] = Information.objects.filter(tags__slug=self.kwargs.get("slug")).all()
+
+        return context

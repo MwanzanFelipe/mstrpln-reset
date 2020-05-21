@@ -1,20 +1,23 @@
 from django.contrib import admin
-from django.contrib.contenttypes.admin import GenericTabularInline
 from .models import *
+from taggit.admin import Tag
 
 admin.site.register(PostIt)
+
+# Remove default Taggit admin because custom Tag available
+admin.site.unregister(Tag)
 
 # Inline definition for custom through model
 class TaggedItemInline(admin.StackedInline):
     model = TaggedWhatever
 
-class TagAdmin(admin.ModelAdmin):
+class CustomTagAdmin(admin.ModelAdmin):
 	inlines = [
 		TaggedItemInline,
 	]
-	
+
 	list_display = ('name','starred')
-admin.site.register(Tag,TagAdmin)
+admin.site.register(CustomTag,CustomTagAdmin)
 
 class LogInline(admin.StackedInline):
     model = Log

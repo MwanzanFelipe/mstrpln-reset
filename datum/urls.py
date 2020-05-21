@@ -21,4 +21,6 @@ urlpatterns = [
     path('information/<int:pk>/edit/', views.InformationUpdate.as_view(), name='information_update'),
 
     path('log/', views.LogList.as_view(), name='log_list'),
+
+    path('tag/<slug:slug>/', views.FullTagListView.as_view(), name="tagged_items"),
 ]

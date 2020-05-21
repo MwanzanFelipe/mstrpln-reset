@@ -1,0 +1,15 @@
+{% extends 'datum/base.html' %}
+
+{% block content %}
+    <h1><a href="">Tagged Items List</a></h1>
+    <p>{{ tag }}</p>
+    <h3>Actions</h3>
+    {% for action in actions %}
+        <div>{{ action }}</div>
+    {% endfor %}
+    <h3>Information</h3>
+    {% for info in information %}
+        <div>{{ info }}</div>
+    {% endfor %}
+
+{% endblock %}

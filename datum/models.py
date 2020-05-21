@@ -21,7 +21,7 @@ LEVELS = (
 )
 
 # Custom Tag which includes extra fields
-class Tag(TagBase):
+class CustomTag(TagBase):
 	text = models.TextField("Notes", blank=True)
 
 	# Tag characteristics
@@ -37,7 +37,7 @@ class Tag(TagBase):
 # Interim custom tag model allowing multiple models to utilize custom tag
 class TaggedWhatever(GenericTaggedItemBase):
 	tag = models.ForeignKey(
-		Tag,
+		CustomTag,
 		on_delete=models.CASCADE,
 		related_name="%(app_label)s_%(class)s_items")
 

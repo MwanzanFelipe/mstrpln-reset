@@ -14,6 +14,12 @@
     {% endfor %}
     <h3><a href="{% url 'log_list' %}">Log Book</a></h3>
     <h2><a href="{% url 'information_list' %}">Information</a></h2>
+    <h2>Starred Tags</h2>
+    {% for tag in starred_tags %}
+        <div>
+            <a href="{% url 'tagged_items' slug=tag.slug %}">{{ tag.name }}</a>
+        </div>
+    {% endfor %}
 
 
 {% endblock %}
