@@ -119,12 +119,11 @@ class Action(BaseDatum):
 		# Recalculate priority when Action data changes
 		self.priority = self.calced_priority()
 
-		# Save
-		super(Action, self).save(**kw)
-
 		if self.complete:
+
 			# If going from incomplete to complete
 			if getattr(self, '__original_complete') != getattr(self,'complete'):
+
 				# Add a log entry when Actions are marked complete
 				# This works but would perhaps be better if functionality is "owned" by Log
 				# Could use post_save.connect to trigger Log. Especially better if post-save logging needed for multiple models
@@ -141,6 +140,33 @@ class Action(BaseDatum):
 
 				# Add Action's tags to Log object
 				l.tags.add(*self.tags.all())
+
+				# Complete + Recurrence = Active
+				# Complete + !Recurrence = Inactive + Unstarred
+				if self.recurrence_date == '' or self.recurrence_date is None:
+					self.active = False
+					self.starred = False
+				else:
+					self.active = True
+		else:
+
+			# If going from complete to incomplete
+			if getattr(self, '__original_complete') != getattr(self,'complete'):
+
+				# Incomplete + Snooze = Inactive
+				# Incomplete + !Snooze = Active
+				# Incomplete + Snooze <= Today = Active
+				if self.snooze_date == "" or self.snooze_date is None:
+					self.active = True
+				else:
+					if self.snooze_date > date.today():
+						self.active = False
+					else:
+						self.snooze_date = None
+						self.active = True
+
+		# Save
+		super(Action, self).save(**kw)
 
 	def __str__(self): 
 		return self.title 
