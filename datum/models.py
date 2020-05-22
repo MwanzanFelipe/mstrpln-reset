@@ -8,6 +8,7 @@ from decimal import Decimal
 from taggit.managers import TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
 import random
+import math
 
 # from taggit.models import TaggedItem
 
@@ -82,7 +83,7 @@ class Action(BaseDatum):
 	starred = models.BooleanField("Star Status", default=False)
 
 	# Action categories
-	tags = TaggableManager(through=TaggedWhatever)
+	tags = TaggableManager(through=TaggedWhatever, blank=True)
 
 	# User-generated date characteristics
 	due_date = models.DateField("Due Date", blank=True, null=True)
@@ -111,8 +112,66 @@ class Action(BaseDatum):
 		# TODO: Revise calculation based on today's date, (re)creation date, due date, importance, and tag priority
 		# days_since_creation = timezone.now().date() - self.recreation_date.date()
 		# days_to_expiration = timezone.now().date() - self.due_date.date()
-		importance = self.importance
-		return Decimal(random.randint(1,1000))
+
+		urgency = self.calc_urgency()
+		scaled_importance = self.calc_scaled_importance()
+
+		if urgency >= 2.5 and scaled_importance >= 2.5:
+			base_urgency = 2.5
+			base_importance = 2.5
+			intercept = 0
+		elif scaled_importance >= 2.5:
+			base_urgency = 0
+			base_importance = 2.5
+			intercept = 2.5
+		elif urgency >= 2.5:
+			base_urgency = 2.5
+			base_importance = 0
+			intercept = -2.5
+		else:
+			base_urgency = 0
+			base_importance = 0
+			intercept = 0
+
+		pt_dist = math.sqrt((urgency - base_urgency)**2 + (scaled_importance - base_importance)**2)
+		ln_dist = abs(urgency - scaled_importance + intercept) / math.sqrt(2)
+
+		priority_scale = math.sqrt(pt_dist**2 - ln_dist**2) / math.sqrt(2 * (2.5)**2)
+
+		if urgency >= 2.5 and scaled_importance >= 2.5:
+			priority = priority_scale + 3
+		elif scaled_importance >= 2.5:
+			priority = priority_scale + 2
+		elif urgency >= 2.5:
+			priority = priority_scale + 1
+		else:
+			priority = priority_scale
+
+		return priority
+
+	def calc_urgency(self):
+		if self.due_date == '' or self.due_date is None:
+			days_to_expiration = 14
+		else:
+			days_to_expiration = date.tooday() - self.due_date.date()
+
+		if days_to_expiration > 14:
+			urgency = 0
+		elif days_to_expiration < 0:
+			urgency = 5
+		else:
+			urgency = (1 - days_to_expiration / 14) * 5
+		return urgency
+
+	def calc_scaled_importance(self):
+		try:
+			max_impt_tag = self.tags.all().order_by('-importance').first().importance
+		except:
+			max_impt_tag = self.importance	
+
+		scaled_importance = (((self.importance * 0.25 + max_impt_tag * 0.75) - 1) / 4) * 5
+
+		return scaled_importance
 
 	def save(self, **kw):
 		
@@ -184,7 +243,7 @@ class Information(BaseDatum):
 	starred = models.BooleanField("Star Status", default=False)
 
 	# Information categories
-	tags = TaggableManager(through=TaggedWhatever)
+	tags = TaggableManager(through=TaggedWhatever, blank=True)
 
 	# Auto-generated date characteristics
 	last_modified = models.DateTimeField("Last Modified", auto_now=True, editable=False)
@@ -214,7 +273,7 @@ class Log(models.Model):
 	relationship = models.IntegerField("Relationship", choices = LEVELS, editable=False)
 
 	# Action categories
-	tags = TaggableManager(through=TaggedWhatever)
+	tags = TaggableManager(through=TaggedWhatever, blank=True)
 
 	def __str__(self): 
 		return "%s - %s" % (self.title, self.completion_date)

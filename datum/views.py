@@ -11,14 +11,14 @@ def index(request): #the index view
     # Active PostIt Count
     inbox_count = PostIt.objects.filter(active=True).count()
 
-    # Active Starred Count
-    starred_actions_count = Action.objects.filter(active=True, starred=True).count()
+    # Active Incomplete Starred Count
+    starred_actions_count = Action.objects.filter(active=True, complete=False, starred=True).count()
 
     # Starred Tags
     starred_tags = CustomTag.objects.filter(starred=True).order_by('name')
 
-    # Top 5 Actions
-    top_prioritized_actions = Action.objects.filter(active=True).order_by('priority')[:5]
+    # Top 5 Actions Active Incomplete
+    top_prioritized_actions = Action.objects.filter(active=True, complete=False).order_by('-priority')[:5]
 
     return render(request, "datum/index.html", {
         "inbox_count": inbox_count,
@@ -53,7 +53,7 @@ class PostItUpdate(generic.edit.UpdateView):
 
 class ActionList(generic.ListView):
     model = Action
-    queryset = Action.objects.filter(active=True).order_by('creation_date')
+    queryset = Action.objects.filter(active=True,complete=False).order_by('-priority')
     context_object_name = 'actions'
     paginate_by = 5
 
