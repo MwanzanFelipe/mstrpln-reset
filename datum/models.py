@@ -109,13 +109,14 @@ class Action(BaseDatum):
 
 	# Function to calculate priority based action characteristics and other metadata
 	def calced_priority(self):
-		# TODO: Revise calculation based on today's date, (re)creation date, due date, importance, and tag priority
-		# days_since_creation = timezone.now().date() - self.recreation_date.date()
-		# days_to_expiration = timezone.now().date() - self.due_date.date()
 
+		# Calculate urgency based on days till due
 		urgency = self.calc_urgency()
+
+		# Calculate importance based on Action and associated tags
 		scaled_importance = self.calc_scaled_importance()
 
+		# Based on Eisenhower Matrix determine how to order Actions within the grid
 		if urgency >= 2.5 and scaled_importance >= 2.5:
 			base_urgency = 2.5
 			base_importance = 2.5
@@ -133,11 +134,16 @@ class Action(BaseDatum):
 			base_importance = 0
 			intercept = 0
 
+		# Compress urgency vs scaled_importance along a slope within each Eisenhower Matrix grid
+		# Measure the distance between the Action and the grid base
 		pt_dist = math.sqrt((urgency - base_urgency)**2 + (scaled_importance - base_importance)**2)
+		# Measure the distance between the Action and the intercept perpendicular to the slope within the grid
 		ln_dist = abs(urgency - scaled_importance + intercept) / math.sqrt(2)
-
+		# Measure the % distance along the slope within the grid (pythagorean theorem)
 		priority_scale = math.sqrt(pt_dist**2 - ln_dist**2) / math.sqrt(2 * (2.5)**2)
 
+		# Calculate the final priority by boosting the priority_scale based on the prioirity of the grid
+		# Urgent + Important > Non-urgent + Important > Urgent + Unimportant > Non-urgent + Unimportant
 		if urgency >= 2.5 and scaled_importance >= 2.5:
 			priority = priority_scale + 3
 		elif scaled_importance >= 2.5:
@@ -150,6 +156,8 @@ class Action(BaseDatum):
 		return priority
 
 	def calc_urgency(self):
+		# Urgency ranges from 0 to 5 based days until due date
+		# Excess of 2 weeks is minimum urgency
 		if self.due_date == '' or self.due_date is None:
 			days_to_expiration = 14
 		else:
@@ -160,15 +168,19 @@ class Action(BaseDatum):
 		elif days_to_expiration < 0:
 			urgency = 5
 		else:
+			# Scale urgency from 0 to 5
 			urgency = (1 - days_to_expiration / 14) * 5
 		return urgency
 
 	def calc_scaled_importance(self):
+		# Tags override Action importance. Only the most important Tag is considered
 		try:
 			max_impt_tag = self.tags.all().order_by('-importance').first().importance
 		except:
 			max_impt_tag = self.importance	
 
+		# Action importance is a weighted average of Action importance and Max tag importance
+		# Scaled importance is resized to 0-5 vs 1-5
 		scaled_importance = (((self.importance * 0.25 + max_impt_tag * 0.75) - 1) / 4) * 5
 
 		return scaled_importance
