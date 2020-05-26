@@ -1,0 +1,60 @@
+{% extends 'datum/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+	<script>
+	
+		$(document).ready(function() {
+			// Get initial model_type from form
+			var init_model_type = $("input[name='model_type']:checked").val();
+
+			// Toggle fields based on initial model_type
+			if (init_model_type == 2) {
+				ActionForm();
+			} else if (init_model_type == 3) {
+				InformationForm();
+			}
+
+			// Hide/Show based on radio button clicked
+			$("#id_model_type_1").click(function(){
+				PostItForm();
+			});
+			$("#id_model_type_2").click(function(){
+				ActionForm();
+			});
+			$("#id_model_type_3").click(function(){
+				InformationForm();
+			});
+		});
+
+		// Hide/Show settings based on needs of PostItForm
+		function PostItForm(){
+			$(".categorizations").collapse('hide');
+			$(".characteristics").collapse('hide');
+			$(".status").collapse('hide');
+			$(".date_info").collapse('hide');
+		}
+
+		// Hide/Show settings based on needs of ActionForm
+		function ActionForm(){
+			$(".categorizations").collapse('show');
+			$(".characteristics").collapse('show');
+			$(".status").collapse('show');
+			$(".date_info").collapse('show');
+		}
+
+		// Hide/Show settings based on needs of InformationForm
+		function InformationForm(){
+			$(".categorizations").collapse('show');
+			$(".characteristics").collapse('hide');
+			$(".status").collapse('hide');
+			$(".date_info").collapse('hide');
+		}
+
+	</script>
+	
+	{% crispy form form.helper %}
+
+{% endblock %}

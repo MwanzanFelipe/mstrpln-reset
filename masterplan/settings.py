@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'datum.apps.DatumConfig',
     'django_crontab',
     'taggit',
+    'crispy_forms'
 ]
 
 MIDDLEWARE = [
@@ -135,3 +136,5 @@ CRONJOBS = [
     # Run once a day
     ('0 5 * * *', 'datum.cron.daily_cron_job')
 ]
+
+CRISPY_TEMPLACE_PACK = 'bootstrap4'

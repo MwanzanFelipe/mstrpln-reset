@@ -2,8 +2,6 @@ from django.contrib import admin
 from .models import *
 from taggit.admin import Tag
 
-admin.site.register(PostIt)
-
 # Remove default Taggit admin because custom Tag available
 admin.site.unregister(Tag)
 
@@ -19,6 +17,16 @@ class CustomTagAdmin(admin.ModelAdmin):
 	list_display = ('name','starred')
 admin.site.register(CustomTag,CustomTagAdmin)
 
+class PostItAdmin(admin.ModelAdmin):
+	fieldsets = [
+		('Basic Info',				{'fields': ['title', 'text']}),
+		('Status',					{'fields': ['active']}),
+	]
+
+	list_display = ('title','active',)
+	list_filter = ('active',)
+admin.site.register(PostIt,PostItAdmin)
+
 class LogInline(admin.StackedInline):
     model = Log
     can_delete = False
@@ -27,8 +35,10 @@ class LogInline(admin.StackedInline):
 
 class ActionAdmin(admin.ModelAdmin):
 	fieldsets = [
-		(None,						{'fields': ['title', 'complete', 'active', 'starred', 'text']}),
-		('Characteristics',			{'fields': ['importance', 'effort', 'enjoyment', 'relationship', 'priority','tags'], 'classes': ['collapse']}),
+		('Basic Info',				{'fields': ['title', 'text']}),
+		('Status',					{'fields': ['complete', 'active']}),
+		('Categorization',			{'fields': ['starred', 'tags']}),
+		('Characteristics',			{'fields': ['importance', 'effort', 'enjoyment', 'relationship', 'priority'], 'classes': ['collapse']}),
 		('User-generated date characteristics',	{'fields': ['due_date','snooze_date','recurrence_date'], 'classes': ['collapse']}),
 		('Auto-generated date characteristics',	{'fields': ['creation_date','recreation_date','last_modified','latest_priority_calc_date'], 'classes': ['collapse']}),
 	]
@@ -46,8 +56,8 @@ admin.site.register(Action,ActionAdmin)
 
 class InformationAdmin(admin.ModelAdmin):
 	fieldsets = [
-		(None,						{'fields': ['title', 'starred', 'text']}),
-		('Characteristics',			{'fields': ['tags']}),
+		('Basic Info',				{'fields': ['title', 'text']}),
+		('Categorization',			{'fields': ['starred', 'tags']}),
 		('Auto-generated date characteristics',	{'fields': ['creation_date','last_modified'], 'classes': ['collapse']}),
 	]
 

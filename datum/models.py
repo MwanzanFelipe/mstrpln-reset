@@ -156,7 +156,7 @@ class Action(BaseDatum):
 		return priority
 
 	def calc_urgency(self):
-		# Urgency ranges from 0 to 5 based days until due date
+		# Urgency ranges from 0 to 5 (and beyond) based days until due date
 		# Excess of 2 weeks is minimum urgency
 		if self.due_date == '' or self.due_date is None:
 			days_to_expiration = 14
@@ -165,10 +165,8 @@ class Action(BaseDatum):
 
 		if days_to_expiration > 14:
 			urgency = 0
-		elif days_to_expiration < 0:
-			urgency = 5
 		else:
-			# Scale urgency from 0 to 5
+			# Scale urgency from 0 to 5 and beyond
 			urgency = (1 - days_to_expiration / 14) * 5
 		return urgency
 

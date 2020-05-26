@@ -1,8 +1,10 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.views import generic
+from django.apps import apps
 from .models import *
 from .forms import *
+
 
 # Dashboard view
 def index(request): #the index view
@@ -27,6 +29,71 @@ def index(request): #the index view
         "starred_tags": starred_tags,
         })
 
+# One Create / Edit function to rule them all
+# Takes a modelname from url and optional pk
+# Needed to use one GenericForm for all PostIts, Actions, and Information to enable user converting between them
+# Because all PostIts, Actions, and Information use the same GenericForm, easier to process them all from one function
+def GenericEdit(request, modelname=None, pk=None, template_name='datum/generic_form.html'):
+
+    # Definition of mapping from url's modelname to form's radio button values
+    model_type_dict = {
+        'postit': '1',
+        'action': '2',
+        'information': '3'
+    }
+    init_model_type = model_type_dict[modelname]
+
+    # Get the actual model object if editing an entry
+    modelname_object = apps.get_model('datum', modelname)
+    if modelname_object == None:
+        raise Http404
+
+    # Get the actual entry if editing
+    # Setting model_object to None allows Create
+    # Define form function based on Edit vs Create or modelname selected
+    if pk:
+        model_object = get_object_or_404(modelname_object, pk=pk)
+        function = 'Edit ' + modelname_object._meta.verbose_name
+    else:
+        model_object = None
+        function = 'Create ' + modelname_object._meta.verbose_name
+
+    # Create a generic form
+    # This controls form population if editing or creating as inital PostIt if new
+    # Default form state is 1 = postit
+    form = GenericForm(request.POST or None, instance=model_object, initial = {'model_type':init_model_type})
+
+    if request.POST and form.is_valid():
+        # Convert from user-supplied model_type to specific Form to save
+        form_dict = {
+            '1': PostItForm,
+            '2': ActionForm,
+            '3': InformationForm
+        }
+        form_class = form_dict[request.POST.get('model_type',None)]
+
+
+        if init_model_type != request.POST.get('model_type',None):
+            # If user-specified model_type different from initial model_type, clear model_object to allow Create, not edit
+            model_object = None
+
+            # If creating from PostIt, set PostIt as inactive
+            if init_model_type == '1':
+                postit = PostIt.objects.get(pk=pk)
+                postit.active = False
+                postit.save()
+
+        form = form_class(request.POST, instance=model_object)
+
+        f = form.save()
+
+        return redirect(f)
+
+    return render(request, template_name, {
+        'form': form,
+        'function': function,
+        })
+
 class PostItList(generic.ListView):
     model = PostIt
     queryset = PostIt.objects.filter(active=True).order_by('creation_date')
@@ -35,21 +102,6 @@ class PostItList(generic.ListView):
 
 class PostItDetailView(generic.DetailView):
     model = PostIt
-
-class PostItNew(generic.edit.CreateView):
-    model = PostIt
-    fields = [
-        "title",
-        "text"
-    ] 
-
-class PostItUpdate(generic.edit.UpdateView):
-    model = PostIt
-    fields = [
-        "title",
-        "text",
-        "active"
-    ] 
 
 class ActionList(generic.ListView):
     model = Action
@@ -60,38 +112,6 @@ class ActionList(generic.ListView):
 class ActionDetailView(generic.DetailView):
     model = Action
 
-class ActionNew(generic.edit.CreateView):
-    model = Action
-    fields = [
-        "title",
-        "starred",
-        "text",
-        "importance",
-        "effort",
-        "enjoyment",
-        "relationship",
-        "tags",
-        "due_date"
-    ]
-
-class ActionUpdate(generic.edit.UpdateView):
-    model = Action
-    fields = [
-        "title",
-        "complete",
-        "active",
-        "starred",
-        "text",
-        "importance",
-        "effort",
-        "enjoyment",
-        "relationship",
-        "tags",
-        "due_date",
-        "snooze_date",
-        "recurrence_date"
-    ]
-
 class InformationList(generic.ListView):
     model = Information
     queryset = Information.objects.order_by('creation_date')
@@ -100,24 +120,6 @@ class InformationList(generic.ListView):
 
 class InformationDetailView(generic.DetailView):
     model = Information
-
-class InformationNew(generic.edit.CreateView):
-    model = Information
-    fields = [
-        "title",
-        "starred",
-        "text",
-        "tags"
-    ]
-
-class InformationUpdate(generic.edit.UpdateView):
-    model = Information
-    fields = [
-        "title",
-        "starred",
-        "text",
-        "tags"
-    ]
 
 class LogList(generic.ListView):
     model = Log
