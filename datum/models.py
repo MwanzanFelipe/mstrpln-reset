@@ -161,7 +161,7 @@ class Action(BaseDatum):
 		if self.due_date == '' or self.due_date is None:
 			days_to_expiration = 14
 		else:
-			days_to_expiration = date.tooday() - self.due_date.date()
+			days_to_expiration = date.today() - self.due_date.date()
 
 		if days_to_expiration > 14:
 			urgency = 0
