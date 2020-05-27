@@ -10,7 +10,12 @@
             </div>
             <h2><a href="{% url 'information_detail' pk=info.pk %}">{{ info.title }}</a></h2>
             <p>{{ info.text|linebreaksbr }}</p>
-            <p>{{ info.tags }}</p>
+	        <p>
+	            Tags:
+	            {% for tag in info.tags.all %}
+	                {{ tag }}{% if not forloop.last %}, {% endif %}
+	            {% endfor %}
+	        </p>
         </div>
     {% endfor %}
 

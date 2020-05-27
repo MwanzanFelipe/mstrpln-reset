@@ -12,6 +12,11 @@
         {% endif %}
         <h2>{{ information.title }}</h2>
         <p>{{ information.text|linebreaksbr }}</p>
-        <p>{{ information.tags }}</p>
+        <p>
+            Tags:
+            {% for tag in information.tags.all %}
+                {{ tag }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
     </div>
 {% endblock %}
