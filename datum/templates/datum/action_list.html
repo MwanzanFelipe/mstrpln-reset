@@ -7,7 +7,7 @@
             <div class="date">
                 <p>created: {{ action.creation_date }}</p>
             </div>
-            <h2><a href="{% url 'action_detail' pk=action.pk %}">{{ action.title }} (Importance: {{ action.importance }} / Priority: {{ action.priority }}</a></h2>
+            <h2><a href="{% url 'action_detail' pk=action.pk %}">{{ action.title }} (Importance: {{ action.importance }} / Priority: {{ action.priority }})</a></h2>
             <p>{{ action.text|linebreaksbr }}</p>
         </div>
     {% endfor %}

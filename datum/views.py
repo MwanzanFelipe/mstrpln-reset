@@ -8,7 +8,9 @@ from .forms import *
 
 # Dashboard view
 def index(request): #the index view
-    # TODO: recalculate_priorities(actions_where_latest_priority_calc_date_isnot_today)
+    # Identify all actions that have not been recalculated today
+    unprocessed_actions = Action.objects.exclude(latest_priority_calc_date__date=date.today())
+    recalculate_action_priorities_and_status(unprocessed_actions)
 
     # Active PostIt Count
     inbox_count = PostIt.objects.filter(active=True).count()
@@ -78,7 +80,7 @@ def GenericEdit(request, modelname=None, pk=None, template_name='datum/generic_f
             model_object = None
 
             # If creating from PostIt, set PostIt as inactive
-            if init_model_type == '1':
+            if init_model_type == '1' and pk is not None:
                 postit = PostIt.objects.get(pk=pk)
                 postit.active = False
                 postit.save()
@@ -128,7 +130,7 @@ class LogList(generic.ListView):
     paginate_by = 10
 
 # Recalculate action priorities
-def recalculate_action_priorities(actions):
+def recalculate_action_priorities_and_status(actions):
     
     for action in actions:
         priority = action.calced_priority()
@@ -136,6 +138,16 @@ def recalculate_action_priorities(actions):
 
         # Update instead of save so that last_modified auto_now is not triggered
         Action.objects.filter(id=action.id).update(priority=priority,latest_priority_calc_date=latest_priority_calc_date)
+
+        # Process fields based on snooze and recurrence dates
+        # Process recurrence impact first.
+        # Snooze and recurrence should be non-interactive. Resetting task with snooze date will be cleared
+        
+        recurrence_date, active, complete = action.process_recurrence()
+        Action.objects.filter(id=action.id).update(recurrence_date=recurrence_date,active=active,complete=complete)
+
+        snooze_date, active = action.process_snooze()
+        Action.objects.filter(id=action.id).update(snooze_date=recurrence_date,active=active)
 
 # List of all items by tags
 class FullTagListView(generic.ListView):

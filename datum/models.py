@@ -184,10 +184,62 @@ class Action(BaseDatum):
 
 		return scaled_importance
 
+	# Toggle Snooze Data / Active Status based on characteristics
+	def process_snooze(self):
+		
+		if self.snooze_date == "" or self.snooze_date is None:
+			# If no snooze date, just pass through
+			snooze_date = self.snooze_date
+			active = self.active
+		else:
+			if self.complete == True:
+				# If Task is Complete, no need for a snooze date
+				snooze_date = None
+				active = self.active
+			else:
+				if self.snooze_date <= date.today():
+					# Incomplete + Snooze <= Today = Active
+					active = True
+					snooze_date = None
+				else:
+					# Incomplete + Snooze = Inactive
+					active = False
+					snooze_date = self.snooze_date
+
+		return snooze_date, active
+
+	def process_recurrence(self):
+		
+		if self.recurrence_date == "" or self.recurrence_date is None:
+			# If no recurrence date, just pass through
+			recurrence_date = self.recurrence_date
+			complete = self.complete
+			active = self.active
+		else:
+			if self.complete == True:
+				if self.recurrence_date <= date.today():
+					# Complete + Recurrence Date arrived/passed = Active + clear recurrence date + Incomplete
+					complete = False
+					recurrence_date = None
+					active = True
+				else:
+					# Complete + Future Recurrence Date = Active + still complete + current recurrence date
+					complete = True
+					recurrence_date = self.recurrence_date
+					active = True
+			else:
+				# if incomplete, no need for a recurrence date
+				complete = self.complete
+				recurrence_date = None
+				active = self.active
+		return recurrence_date, active, complete
+
+
 	def save(self, **kw):
 		
 		# Recalculate priority when Action data changes
 		self.priority = self.calced_priority()
+		self.latest_priority_calc_date = timezone.now()
 
 		if self.complete:
 
@@ -211,29 +263,13 @@ class Action(BaseDatum):
 				# Add Action's tags to Log object
 				l.tags.add(*self.tags.all())
 
-				# Complete + Recurrence = Active
-				# Complete + !Recurrence = Inactive + Unstarred
-				if self.recurrence_date == '' or self.recurrence_date is None:
-					self.active = False
-					self.starred = False
-				else:
-					self.active = True
-		else:
+				self.starred = False
 
-			# If going from complete to incomplete
-			if getattr(self, '__original_complete') != getattr(self,'complete'):
-
-				# Incomplete + Snooze = Inactive
-				# Incomplete + !Snooze = Active
-				# Incomplete + Snooze <= Today = Active
-				if self.snooze_date == "" or self.snooze_date is None:
-					self.active = True
-				else:
-					if self.snooze_date > date.today():
-						self.active = False
-					else:
-						self.snooze_date = None
-						self.active = True
+		# Process fields based on snooze and recurrence dates
+		# Process recurrence impact first.
+		# Snooze and recurrence should be non-interactive. Resetting task with snooze date will be cleared
+		self.recurrence_date, self.active, self.complete = self.process_recurrence()
+		self.snooze_date, self.active = self.process_snooze()
 
 		# Save
 		super(Action, self).save(**kw)
