@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'datum.apps.DatumConfig',
     'django_crontab',
     'taggit',
-    'crispy_forms'
+    'crispy_forms',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -137,4 +138,26 @@ CRONJOBS = [
     ('0 5 * * *', 'datum.cron.daily_cron_job')
 ]
 
-CRISPY_TEMPLACE_PACK = 'bootstrap4'
+# Template pack for Django Crispy Forms
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+# Custom config for rich text field
+CKEDITOR_CONFIGS = {
+    'default': {
+        #'skin': 'moono',
+        'toolbar_Mstrpln_Config': [
+            {'name': 'clipboard', 'items': ['Undo', 'Redo']},
+            {'name': 'basicstyles',
+             'items': ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat']},
+            {'name': 'paragraph',
+             'items': ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent']},
+            {'name': 'links', 'items': ['Link', 'Unlink']},
+            {'name': 'insert',
+             'items': ['HorizontalRule', 'Smiley']},
+            {'name': 'styles', 'items': ['Format', 'FontSize']},
+            {'name': 'colors', 'items': ['TextColor', 'BGColor']},
+            {'name': 'tools', 'items': ['Maximize']},
+        ],
+        'toolbar': 'Mstrpln_Config',  # put selected toolbar config here
+    }
+}

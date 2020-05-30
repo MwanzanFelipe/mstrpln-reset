@@ -9,8 +9,7 @@ from taggit.managers import TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
 import random
 import math
-
-# from taggit.models import TaggedItem
+from ckeditor.fields import RichTextField
 
 # Used for Action characteristics
 LEVELS = (
@@ -23,7 +22,7 @@ LEVELS = (
 
 # Custom Tag which includes extra fields
 class CustomTag(TagBase):
-	text = models.TextField("Notes", blank=True)
+	text = RichTextField("Notes", blank=True)
 
 	# Tag characteristics
 	importance = models.IntegerField("Importance", choices = LEVELS, default = 3)
@@ -45,7 +44,7 @@ class TaggedWhatever(GenericTaggedItemBase):
 # Abstract base class so that every model gets a title, text, and creation_date
 class BaseDatum(models.Model):
 	title = models.CharField("Title", max_length=200)
-	text = models.TextField("Notes", blank=True)
+	text = RichTextField("Notes", blank=True)
 	creation_date = models.DateTimeField("Creation DateTime", auto_now_add=True)
 
 	class Meta:

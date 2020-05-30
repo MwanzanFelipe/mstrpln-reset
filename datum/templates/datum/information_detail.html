@@ -11,7 +11,7 @@
         	<a class="btn btn-default" href="{% url 'generic_update' pk=information.pk modelname='information' %}">Edit</a>
         {% endif %}
         <h2>{{ information.title }}</h2>
-        <p>{{ information.text|linebreaksbr }}</p>
+        <p>{{ information.text|safe }}</p>
         <p>
             Tags:
             {% for tag in information.tags.all %}

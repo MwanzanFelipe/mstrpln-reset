@@ -11,6 +11,6 @@
         	<a class="btn btn-default" href="{% url 'generic_update' pk=postit.pk modelname='postit' %}">Edit</a>
         {% endif %}
         <h2>{{ postit.title }}</h2>
-        <p>{{ postit.text|linebreaksbr }}</p>
+        <p>{{ postit.text|safe }}</p>
     </div>
 {% endblock %}

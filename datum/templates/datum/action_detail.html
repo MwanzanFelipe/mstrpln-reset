@@ -11,6 +11,6 @@
         	<a class="btn btn-default" href="{% url 'generic_update' pk=action.pk modelname='action' %}">Edit</a>
         {% endif %}
         <h2>{{ action.title }}</h2>
-        <p>{{ action.text|linebreaksbr }}</p>
+        <p>{{ action.text|safe }}</p>
     </div>
 {% endblock %}

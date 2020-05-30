@@ -9,7 +9,7 @@
                 <p>created: {{ postit.creation_date }}</p>
             </div>
             <h2><a href="{% url 'postit_detail' pk=postit.pk %}">{{ postit.title }}</a></h2>
-            <p>{{ postit.text|linebreaksbr }}</p>
+            <p>{{ postit.text|safe }}</p>
         </div>
     {% endfor %}
 
