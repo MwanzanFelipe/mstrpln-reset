@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 
         <!-- Font Awesome CSS -->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
         <!-- Custom styles for this template -->
         <link rel="stylesheet" href="{% static 'css/datum.css' %}">
@@ -50,39 +50,48 @@
                                 {% endif %}
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link active" href="#">
-                                    <span data-feather="home"></span>
-                                    Dashboard <span class="sr-only">(current)</span>
+                                <a class="nav-link {{ dashboard_menu }}" href="/">
+                                    <i class="fa fa-tachometer feather"></i> Dashboard
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span data-feather="file"></span>
-                                    Orders
+                                <a class="nav-link {{ inbox_menu }}" href="{% url 'postit_list' %}">
+                                    <i class="fa fa-inbox feather"></i> Inbox
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ next_actions_menu }}" href="{% url 'action_list' %}">
+                                    <i class="fa fa-tasks feather"></i> Next Actions
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ information_menu }}" href="{% url 'information_list' %}">
+                                    <i class="fa fa-info feather"></i> Information
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ tags_menu }}" href="#">
+                                    <i class="fa fa-tags feather"></i> Tags
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ goals_menu }}" href="#">
+                                    <i class="fa fa-bullseye feather"></i> Goals
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ journal_menu }}" href="#">
+                                    <i class="fa fa-book feather"></i> Journal
                                 </a>
                             </li>
                         </ul>
 
-                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            <span>Saved reports</span>
-                            <a class="d-flex align-items-center text-muted" href="#">
-                                <span data-feather="plus-circle"></span>
-                            </a>
-                        </h6>
-                        <ul class="nav flex-column mb-2">
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span data-feather="file-text"></span>
-                                    Current month
-                                </a>
-                            </li>
-                        </ul>
                     </div>
                 </nav>
 
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
                                 {% if user.is_authenticated %}
-                                    <a href="{% url 'generic_new' 'postit' %}"><button id="mybutton" type="button" class="btn btn-primary d-md-none">Add New</button></a>
+                                    <a href="{% url 'generic_new' 'postit' %}"><button id="new-postit-button" type="button" class="btn btn-primary d-md-none">Add New</button></a>
                                 {% endif %}
 
                     {% block content %}

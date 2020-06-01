@@ -24,12 +24,15 @@ def index(request): #the index view
     # Top 5 Actions Active Incomplete
     top_prioritized_actions = Action.objects.filter(active=True, complete=False).order_by('-priority')[:5]
 
-    return render(request, "datum/index.html", {
+    context = {
         "inbox_count": inbox_count,
         "starred_actions_count": starred_actions_count,
         "top_prioritized_actions": top_prioritized_actions,
         "starred_tags": starred_tags,
-        })
+        "dashboard_menu": "active"
+        }
+
+    return render(request, "datum/index.html", context)
 
 # One Create / Edit function to rule them all
 # Takes a modelname from url and optional pk
@@ -102,6 +105,13 @@ class PostItList(generic.ListView):
     context_object_name = 'postits'
     paginate_by = 5
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get the context
+        context = super(PostItList, self).get_context_data(**kwargs)
+        # Create any data and add it to the context
+        context['inbox_menu'] = 'active'
+        return context
+
 class PostItDetailView(generic.DetailView):
     model = PostIt
 
@@ -111,6 +121,13 @@ class ActionList(generic.ListView):
     context_object_name = 'actions'
     paginate_by = 5
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get the context
+        context = super(ActionList, self).get_context_data(**kwargs)
+        # Create any data and add it to the context
+        context['next_actions_menu'] = 'active'
+        return context
+
 class ActionDetailView(generic.DetailView):
     model = Action
 
@@ -119,6 +136,13 @@ class InformationList(generic.ListView):
     queryset = Information.objects.order_by('creation_date')
     context_object_name = 'information'
     paginate_by = 5
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get the context
+        context = super(InformationList, self).get_context_data(**kwargs)
+        # Create any data and add it to the context
+        context['information_menu'] = 'active'
+        return context
 
 class InformationDetailView(generic.DetailView):
     model = Information
