@@ -63,6 +63,7 @@
                                 <a class="nav-link {{ next_actions_menu }}" href="{% url 'action_list' %}">
                                     <i class="fa fa-tasks feather"></i> Next Actions
                                 </a>
+
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {{ information_menu }}" href="{% url 'information_list' %}">
@@ -90,12 +91,13 @@
                 </nav>
 
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-                                {% if user.is_authenticated %}
-                                    <a href="{% url 'generic_new' 'postit' %}"><button id="new-postit-button" type="button" class="btn btn-primary d-md-none">Add New</button></a>
-                                {% endif %}
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'generic_new' 'postit' %}"><button id="new-postit-button" type="button" class="btn btn-primary d-md-none">Add New</button></a>
 
-                    {% block content %}
-                    {% endblock %}
+                        {% block content %}
+                        {% endblock %}
+
+                    {% endif %}
 
                 </main>
             </div>

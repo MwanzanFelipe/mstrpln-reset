@@ -117,9 +117,20 @@ class PostItDetailView(generic.DetailView):
 
 class ActionList(generic.ListView):
     model = Action
-    queryset = Action.objects.filter(active=True,complete=False).order_by('-priority')
     context_object_name = 'actions'
     paginate_by = 5
+
+    def get_queryset(self):
+        queryset = Action.objects.filter(active=True,complete=False).order_by('-priority')
+        if self.request.GET.get("subset"):
+            subset = self.request.GET.get("subset")
+            if subset == "Starred":
+                queryset = Action.objects.filter(active=True,complete=False,starred=True).order_by('-priority')
+            elif subset == "Overdue":
+                queryset = Action.objects.filter(complete=False,due_date__lt=date.today()).order_by('-priority')
+            elif subset == "Snoozed":
+                queryset = Action.objects.filter(complete=False,snooze_date__gte=date.today()).order_by('-priority')
+        return queryset
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get the context
