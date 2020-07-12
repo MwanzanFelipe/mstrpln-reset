@@ -7,7 +7,8 @@
     <h2><a href="{% url 'action_list' %}">Next Actions</a></h2>
     <p><a href="{% url 'action_list' %}?subset=Overdue">Overdue Actions</a></p>
     <p><a href="{% url 'action_list' %}?subset=Snoozed">Snoozed Actions</a></p>
-    <a href="{% url 'action_list' %}?subset=Starred">Starred Actions</a> Count: {{ starred_actions_count}}
+    <p><a href="{% url 'action_list' %}?subset=Starred">Starred Actions</a> Count: {{ starred_actions_count }}</p>
+    <p><a href="{% url 'action_list' %}?subset=Orphans">Orphaned Actions</a> Count: {{ orphan_actions_count }}</p>
     <p>Top 5 prioritized actions:</p>
     {% for action in top_prioritized_actions %}
         <div>

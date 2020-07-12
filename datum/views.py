@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.views import generic
 from django.apps import apps
+from django.db.models import Q
 from .models import *
 from .forms import *
 
@@ -15,6 +16,12 @@ def index(request): #the index view
     # Active PostIt Count
     inbox_count = PostIt.objects.filter(active=True).count()
 
+    # Orphan Action Count
+    orphan_actions_count = Action.objects.filter(
+        Q(active=True, complete=True, recurrence_date__isnull=True) |
+        Q(active=False, complete=False, snooze_date__isnull=True)
+        ).count()
+
     # Active Incomplete Starred Count
     starred_actions_count = Action.objects.filter(active=True, complete=False, starred=True).count()
 
@@ -27,6 +34,7 @@ def index(request): #the index view
     context = {
         "inbox_count": inbox_count,
         "starred_actions_count": starred_actions_count,
+        "orphan_actions_count": orphan_actions_count,
         "top_prioritized_actions": top_prioritized_actions,
         "starred_tags": starred_tags,
         "dashboard_menu": "active"
@@ -128,6 +136,11 @@ class ActionList(generic.ListView):
                 queryset = Action.objects.filter(active=True,complete=False,starred=True).order_by('-priority')
             elif subset == "Overdue":
                 queryset = Action.objects.filter(complete=False,due_date__lt=date.today()).order_by('-priority')
+            elif subset == "Orphans":
+                queryset = Action.objects.filter(
+                    Q(active=True, complete=True, recurrence_date__isnull=True) |
+                    Q(active=False, complete=False, snooze_date__isnull=True)
+                    )
             elif subset == "Snoozed":
                 queryset = Action.objects.filter(complete=False,snooze_date__gte=date.today()).order_by('-priority')
         return queryset
