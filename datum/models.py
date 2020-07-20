@@ -270,6 +270,10 @@ class Action(BaseDatum):
 		self.recurrence_date, self.active, self.complete = self.process_recurrence()
 		self.snooze_date, self.active = self.process_snooze()
 
+		# Mark as inactive if there is no recurrence_date or snooze_date
+		if (self.recurrence_date == "" or self.recurrence_date is None) and (self.snooze_date == "" or self.snooze_date is None):
+			self.active = False
+
 		# Save
 		super(Action, self).save(**kw)
 
