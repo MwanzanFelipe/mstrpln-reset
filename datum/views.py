@@ -10,6 +10,7 @@ from .forms import *
 # Dashboard view
 def index(request): #the index view
     # Identify all actions that have not been recalculated today
+
     unprocessed_actions = Action.objects.exclude(latest_priority_calc_date__date=date.today())
     recalculate_action_priorities_and_status(unprocessed_actions)
 
@@ -195,7 +196,7 @@ def recalculate_action_priorities_and_status(actions):
         Action.objects.filter(id=action.id).update(recurrence_date=recurrence_date,active=active,complete=complete)
 
         snooze_date, active = action.process_snooze()
-        Action.objects.filter(id=action.id).update(snooze_date=recurrence_date,active=active)
+        Action.objects.filter(id=action.id).update(snooze_date=snooze_date,active=active)
 
 # List of all items by tags
 class FullTagListView(generic.ListView):
