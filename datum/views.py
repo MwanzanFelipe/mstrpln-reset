@@ -127,7 +127,7 @@ class PostItDetailView(generic.DetailView):
 class ActionList(generic.ListView):
     model = Action
     context_object_name = 'actions'
-    paginate_by = 5
+    paginate_by = 10
 
     def get_queryset(self):
         queryset = Action.objects.filter(active=True,complete=False).order_by('-priority')
